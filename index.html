@@ -1,0 +1,894 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Sai Vinayak Dental & Orthodontic Centre</title>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Alpine.js -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['Poppins', 'sans-serif'],
+            },
+            colors: {
+              primary: '#2C7BE5',
+              primaryHover: '#1B5FC6',
+              softBlue: '#F2F8FF',
+              accentGreen: '#3AC47D',
+              textDark: '#1F2937',
+              textBody: '#4B5563',
+              borderGrey: '#E5E7EB',
+            },
+            boxShadow: {
+              'card': '0 8px 24px rgba(0,0,0,0.06)',
+              'hero': '0 16px 40px rgba(0,0,0,0.08)',
+              'input': '0 2px 6px rgba(0,0,0,0.04)',
+            },
+            animation: {
+                'bounce-subtle': 'bounce-subtle 2s infinite',
+            },
+            keyframes: {
+                'bounce-subtle': {
+                    '0%, 100%': { transform: 'translateY(-5%)' },
+                    '50%': { transform: 'translateY(0)' },
+                }
+            }
+          }
+        }
+      }
+    </script>
+    <style>
+      body {
+        font-family: 'Poppins', sans-serif;
+        color: #4B5563;
+        -webkit-font-smoothing: antialiased;
+      }
+      .scroll-smooth {
+        scroll-behavior: smooth;
+      }
+      [x-cloak] { display: none !important; }
+    </style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "https://esm.sh/react@^19.2.4",
+    "react-dom/": "https://esm.sh/react-dom@^19.2.4/",
+    "react/": "https://esm.sh/react@^19.2.4/",
+    "lucide-react": "https://esm.sh/lucide-react@^0.564.0",
+    "react-router-dom": "https://esm.sh/react-router-dom@^7.13.0"
+  }
+}
+</script>
+</head>
+<body class="bg-white" x-data="dentalApp()" x-init="initApp()">
+
+    <!-- Navbar -->
+    <nav class="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-borderGrey h-20">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">
+            <div class="flex justify-between items-center h-full">
+                <!-- Logo -->
+                <div class="flex-shrink-0 flex items-center cursor-pointer" @click="navigateTo('home')">
+                    <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center mr-3">
+                        <span class="text-white font-bold text-xl">SV</span>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold text-textDark leading-none">Sai Vinayak</h1>
+                        <p class="text-xs text-textBody">Dental Centre</p>
+                    </div>
+                </div>
+
+                <!-- Desktop Menu -->
+                <div class="hidden md:flex items-center space-x-8">
+                    <template x-for="item in navItems" :key="item.id">
+                        <a href="#" 
+                           @click.prevent="navigateTo(item.id)"
+                           class="text-sm font-medium transition-colors"
+                           :class="currentPage === item.id ? 'text-primary' : 'text-textBody hover:text-primary'"
+                           x-text="item.label"></a>
+                    </template>
+                </div>
+
+                <!-- Desktop CTA -->
+                <div class="hidden md:flex items-center">
+                    <a :href="'tel:' + clinicInfo.phone" class="mr-4 text-primary font-medium flex items-center gap-2">
+                        <i data-lucide="phone" class="w-[18px] h-[18px]"></i>
+                        <span x-text="clinicInfo.phone"></span>
+                    </a>
+                    <button @click="navigateTo('contact')" 
+                            class="inline-flex items-center justify-center font-medium transition-all duration-200 rounded-xl focus:outline-none bg-primary text-white hover:bg-primaryHover shadow-[0_4px_12px_rgba(44,123,229,0.2)] hover:-translate-y-0.5 text-sm px-4 py-2">
+                        Book Appointment
+                    </button>
+                </div>
+
+                <!-- Mobile Menu Button -->
+                <div class="md:hidden flex items-center">
+                    <button @click="mobileMenuOpen = !mobileMenuOpen" class="text-textDark hover:text-primary focus:outline-none p-2">
+                        <i x-show="!mobileMenuOpen" data-lucide="menu" class="w-6 h-6"></i>
+                        <i x-show="mobileMenuOpen" data-lucide="x" class="w-6 h-6" x-cloak></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Dropdown -->
+        <div x-show="mobileMenuOpen" 
+             x-transition:enter="transition ease-out duration-200"
+             x-transition:enter-start="opacity-0 -translate-y-2"
+             x-transition:enter-end="opacity-100 translate-y-0"
+             x-transition:leave="transition ease-in duration-150"
+             x-transition:leave-start="opacity-100 translate-y-0"
+             x-transition:leave-end="opacity-0 -translate-y-2"
+             class="md:hidden bg-white border-b border-borderGrey absolute w-full left-0 top-20 shadow-lg" x-cloak>
+            <div class="px-4 pt-2 pb-6 space-y-2">
+                <template x-for="item in navItems" :key="item.id">
+                    <a href="#" 
+                       @click.prevent="navigateTo(item.id); mobileMenuOpen = false"
+                       class="block px-3 py-3 rounded-md text-base font-medium"
+                       :class="currentPage === item.id ? 'bg-softBlue text-primary' : 'text-textBody hover:bg-gray-50'"
+                       x-text="item.label"></a>
+                </template>
+                <div class="pt-4 border-t border-gray-100">
+                    <a :href="'tel:' + clinicInfo.phone" class="flex items-center justify-center w-full px-4 py-3 border border-primary text-primary rounded-xl mb-3 font-medium">
+                        <i data-lucide="phone" class="w-[18px] h-[18px] mr-2"></i> 
+                        <span x-text="'Call ' + clinicInfo.phone"></span>
+                    </a>
+                    <button @click="navigateTo('contact'); mobileMenuOpen = false" 
+                            class="w-full inline-flex items-center justify-center font-medium transition-all duration-200 rounded-xl bg-primary text-white hover:bg-primaryHover shadow-[0_4px_12px_rgba(44,123,229,0.2)] text-base px-6 py-3">
+                        Book Appointment
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="flex-grow min-h-[calc(100vh-80px-300px)]">
+        
+        <!-- HOME PAGE -->
+        <div x-show="currentPage === 'home'" x-transition.opacity.duration.300ms>
+            <!-- Hero Section -->
+            <section class="relative bg-gradient-to-br from-softBlue to-white pt-10 pb-20 md:py-24 overflow-hidden">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex flex-col lg:flex-row items-center gap-12 lg:gap-20">
+                        <!-- Left Content -->
+                        <div class="w-full lg:w-1/2 z-10 text-center lg:text-left">
+                            <div class="inline-flex items-center px-4 py-2 rounded-full bg-blue-50 text-primary text-sm font-semibold mb-6 border border-blue-100">
+                                <i data-lucide="star" class="w-4 h-4 mr-2 fill-primary"></i>
+                                Rated 4.8/5 on Google
+                            </div>
+                            <h1 class="text-4xl md:text-5xl lg:text-6xl font-bold text-textDark leading-tight mb-6">
+                                Painless & Advanced Dental Care in <span class="text-primary">Shalimar Bagh</span>
+                            </h1>
+                            <p class="text-lg text-textBody mb-8 max-w-xl mx-auto lg:mx-0">
+                                Your trusted family dentist with 5 dental chairs, full-time braces specialist, and in-house OPG for comprehensive care.
+                            </p>
+                            <div class="flex flex-col sm:flex-row items-center justify-center lg:justify-start gap-4">
+                                <a :href="'tel:' + clinicInfo.phone" class="w-full sm:w-auto">
+                                    <button class="w-full sm:w-auto inline-flex items-center justify-center font-medium transition-all duration-200 rounded-xl bg-primary text-white hover:bg-primaryHover shadow-[0_4px_12px_rgba(44,123,229,0.2)] hover:-translate-y-0.5 text-lg px-8 py-4">
+                                        <i data-lucide="phone" class="w-5 h-5 mr-2"></i> Call Now
+                                    </button>
+                                </a>
+                                <button @click="navigateTo('contact')" class="w-full sm:w-auto inline-flex items-center justify-center font-medium transition-all duration-200 rounded-xl bg-white text-primary hover:bg-softBlue border border-transparent shadow-card text-lg px-8 py-4">
+                                    Book Appointment
+                                </button>
+                            </div>
+                            <div class="mt-10 flex items-center justify-center lg:justify-start gap-6 text-sm font-medium text-gray-500">
+                                <div class="flex items-center"><i data-lucide="check-circle" class="w-4 h-4 text-accentGreen mr-2"></i> Braces Specialist</div>
+                                <div class="flex items-center"><i data-lucide="check-circle" class="w-4 h-4 text-accentGreen mr-2"></i> 5 Dental Chairs</div>
+                                <div class="flex items-center"><i data-lucide="check-circle" class="w-4 h-4 text-accentGreen mr-2"></i> In-House OPG</div>
+                            </div>
+                        </div>
+
+                        <!-- Right Image -->
+                        <div class="w-full lg:w-1/2 relative">
+                            <div class="relative rounded-3xl overflow-hidden shadow-hero">
+                                <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&q=80&w=1600" alt="Modern Dental Clinic Interior" class="w-full h-full object-cover transform hover:scale-105 transition-transform duration-700" />
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent pointer-events-none"></div>
+                            </div>
+                            <!-- Floating Badge -->
+                            <div class="absolute -bottom-6 -left-6 bg-white p-4 rounded-xl shadow-card hidden md:flex items-center gap-4 animate-bounce-subtle">
+                                <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center text-accentGreen">
+                                    <i data-lucide="check-circle" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-textDark">Painless</p>
+                                    <p class="text-xs text-gray-500">Treatment Guarantee</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Why Choose Us -->
+            <section class="py-20 bg-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-16">
+                        <h2 class="text-3xl md:text-4xl font-bold text-textDark mb-4">Why Choose Sai Vinayak?</h2>
+                        <p class="text-textBody max-w-2xl mx-auto">We combine advanced technology with compassionate care to give you the best dental experience.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <template x-for="item in whyChooseUs">
+                            <div class="flex items-start p-6 rounded-2xl bg-gray-50 hover:bg-white border border-transparent hover:border-gray-100 hover:shadow-card transition-all duration-300">
+                                <div class="w-12 h-12 bg-softBlue rounded-xl flex-shrink-0 flex items-center justify-center text-primary mr-5">
+                                    <i :data-lucide="item.icon" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <h3 class="font-semibold text-textDark text-lg mb-2" x-text="item.title"></h3>
+                                    <p class="text-textBody text-sm leading-relaxed" x-text="item.desc"></p>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Services Snapshot -->
+            <section class="py-20 bg-softBlue">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="flex flex-col md:flex-row justify-between items-end mb-12 gap-6">
+                        <div>
+                            <h2 class="text-3xl md:text-4xl font-bold text-textDark mb-4">Our Services</h2>
+                            <p class="text-textBody max-w-xl">Comprehensive dental care under one roof. From routine checkups to complex surgeries.</p>
+                        </div>
+                        <button @click="navigateTo('services')" class="inline-flex items-center justify-center font-medium transition-all duration-200 rounded-xl bg-white text-primary hover:bg-softBlue border border-transparent shadow-card text-base px-6 py-3">View All Services</button>
+                    </div>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <template x-for="service in services.slice(0, 6)" :key="service.id">
+                            <div @click="navigateTo('services')" class="bg-white rounded-2xl p-6 shadow-card hover:shadow-lg transition-all duration-300 hover:-translate-y-1 cursor-pointer border border-transparent hover:border-softBlue group">
+                                <div class="w-12 h-12 bg-softBlue rounded-xl flex items-center justify-center text-primary mb-6 group-hover:bg-primary group-hover:text-white transition-colors duration-300">
+                                    <i :data-lucide="service.icon" class="w-6 h-6" stroke-width="2"></i>
+                                </div>
+                                <h3 class="text-xl font-semibold text-textDark mb-3 group-hover:text-primary transition-colors" x-text="service.title"></h3>
+                                <p class="text-textBody text-sm mb-6 leading-relaxed line-clamp-2" x-text="service.shortDescription"></p>
+                                <div class="flex items-center text-primary font-medium text-sm group-hover:translate-x-1 transition-transform">
+                                    Learn More <i data-lucide="arrow-right" class="w-4 h-4 ml-2"></i>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Reviews Section -->
+            <section class="py-20 bg-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-16">
+                        <div class="inline-flex items-center px-3 py-1 rounded-full bg-yellow-50 text-yellow-700 text-xs font-bold mb-4 border border-yellow-100">
+                            <i data-lucide="star" class="w-3 h-3 mr-1 fill-yellow-500 text-yellow-500"></i> TESTIMONIALS
+                        </div>
+                        <h2 class="text-3xl md:text-4xl font-bold text-textDark mb-4">What Our Patients Say</h2>
+                        <p class="text-textBody">Trusted by over 5000+ happy smiles in Delhi.</p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        <template x-for="review in reviews.slice(0,3)" :key="review.id">
+                            <div class="bg-white p-6 rounded-2xl shadow-card h-full flex flex-col">
+                                <div class="flex items-center mb-4">
+                                    <template x-for="i in 5">
+                                        <i data-lucide="star" class="w-4 h-4 mr-1" :class="i <= review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'"></i>
+                                    </template>
+                                </div>
+                                <p class="text-textBody text-sm italic mb-6 flex-grow leading-relaxed" x-text="'&quot;' + review.text + '&quot;'"></p>
+                                <div class="flex items-center border-t border-borderGrey pt-4">
+                                    <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3 text-gray-500">
+                                        <i data-lucide="user" class="w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-textDark text-sm" x-text="review.name"></h4>
+                                        <p class="text-xs text-gray-400" x-text="review.date"></p>
+                                    </div>
+                                    <div class="ml-auto">
+                                        <div class="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm">
+                                            <span class="font-bold text-[10px]" style="color: #4285F4">G</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="mt-12 text-center">
+                        <button @click="navigateTo('reviews')" class="inline-flex items-center justify-center font-medium transition-all duration-200 rounded-xl bg-transparent border border-primary text-primary hover:bg-softBlue text-base px-6 py-3">Read All Reviews on Google</button>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Gallery Preview -->
+            <section class="py-20 bg-gray-50">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-12">
+                        <h2 class="text-3xl md:text-4xl font-bold text-textDark mb-4">Our Clinic</h2>
+                        <p class="text-textBody">Designed for hygiene, comfort, and safety.</p>
+                    </div>
+                    <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+                        <img src="https://images.unsplash.com/photo-1629909613654-28e377c37b09?auto=format&fit=crop&q=80&w=800" alt="Clinic Interior" class="rounded-xl shadow-sm hover:shadow-lg transition-all h-64 object-cover w-full col-span-2 md:col-span-2 row-span-2" />
+                        <img src="https://images.unsplash.com/photo-1598256989800-fe5f95da9787?auto=format&fit=crop&q=80&w=800" alt="Dental Chair" class="rounded-xl shadow-sm hover:shadow-lg transition-all h-32 object-cover w-full" />
+                        <img src="https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&q=80&w=800" alt="Equipment" class="rounded-xl shadow-sm hover:shadow-lg transition-all h-32 object-cover w-full" />
+                        <img src="https://images.unsplash.com/photo-1606811971618-4486d14f3f72?auto=format&fit=crop&q=80&w=800" alt="Sterilization" class="rounded-xl shadow-sm hover:shadow-lg transition-all h-32 object-cover w-full col-span-2 md:col-span-2" />
+                    </div>
+                    <div class="mt-8 text-center">
+                        <button @click="navigateTo('gallery')" class="inline-flex items-center justify-center font-medium transition-all duration-200 rounded-xl bg-white text-primary hover:bg-softBlue border border-transparent shadow-card text-base px-6 py-3">View Full Gallery</button>
+                    </div>
+                </div>
+            </section>
+
+             <!-- Location CTA -->
+             <section class="py-20 bg-white">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="bg-primary rounded-3xl p-8 md:p-12 shadow-hero text-white relative overflow-hidden">
+                        <div class="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
+                            <div class="text-center md:text-left">
+                                <h2 class="text-3xl md:text-4xl font-bold mb-4">Ready to Smile Confidently?</h2>
+                                <p class="text-blue-100 text-lg mb-6 max-w-lg">
+                                    Visit us at Shalimar Bagh, opposite the Police Station. Open 7 days a week.
+                                </p>
+                                <div class="flex flex-col sm:flex-row gap-4 justify-center md:justify-start">
+                                    <a :href="'tel:' + clinicInfo.phone">
+                                        <button class="w-full sm:w-auto inline-flex items-center justify-center font-medium transition-all duration-200 rounded-xl bg-white text-primary hover:bg-gray-100 shadow-none border-0 text-base px-6 py-3">
+                                            <i data-lucide="phone" class="w-5 h-5 mr-2"></i> Call Now
+                                        </button>
+                                    </a>
+                                    <a :href="clinicInfo.mapLink" target="_blank" rel="noreferrer">
+                                        <button class="w-full sm:w-auto inline-flex items-center justify-center font-medium transition-all duration-200 rounded-xl bg-transparent border border-white text-white hover:bg-white/10 shadow-none text-base px-6 py-3">
+                                            <i data-lucide="map-pin" class="w-5 h-5 mr-2"></i> Get Directions
+                                        </button>
+                                    </a>
+                                </div>
+                            </div>
+                             <!-- Embed Map Mock -->
+                            <div class="w-full md:w-1/3 h-64 bg-gray-200 rounded-xl overflow-hidden border-4 border-white/20">
+                                <iframe 
+                                src="https://maps.google.com/maps?q=P585%2BP2%20Delhi&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                                width="100%" 
+                                height="100%" 
+                                style="border: 0" 
+                                allowfullscreen="" 
+                                loading="lazy" 
+                                title="Clinic Location"
+                                ></iframe>
+                            </div>
+                        </div>
+                        <!-- Background decoration -->
+                        <div class="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-16 -mt-16 blur-3xl"></div>
+                        <div class="absolute bottom-0 left-0 w-96 h-96 bg-blue-600/30 rounded-full -ml-20 -mb-20 blur-3xl"></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ABOUT PAGE -->
+        <div x-show="currentPage === 'about'" x-cloak x-transition.opacity.duration.300ms>
+            <div class="pt-8 pb-20">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16">
+                    <h1 class="text-4xl md:text-5xl font-bold text-textDark text-center mb-6">About Sai Vinayak Dental</h1>
+                    <p class="text-xl text-textBody text-center max-w-3xl mx-auto">
+                        We are dedicated to providing the highest quality dental care in a comfortable, relaxed, and friendly environment.
+                    </p>
+                </div>
+
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mb-24">
+                        <div class="relative">
+                            <img src="https://images.unsplash.com/photo-1629909615184-74f495363b67?auto=format&fit=crop&q=80&w=800" alt="Our Clinic" class="rounded-3xl shadow-hero w-full object-cover z-10 relative" />
+                            <div class="absolute -bottom-6 -right-6 w-2/3 bg-white p-6 rounded-2xl shadow-xl hidden md:block">
+                                <p class="font-bold text-primary text-4xl mb-2">15+</p>
+                                <p class="text-textBody text-sm">Years of combined experience in creating beautiful smiles.</p>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h2 class="text-3xl font-bold text-textDark mb-6">Our Philosophy</h2>
+                            <p class="text-textBody text-lg leading-relaxed mb-6">
+                                At Sai Vinayak Dental & Orthodontic Centre, we believe that visiting the dentist should be a positive experience. Our philosophy is built on the pillar of <strong>"Patient-First Care."</strong>
+                            </p>
+                            <p class="text-textBody text-lg leading-relaxed mb-8">
+                                We understand that many people feel anxious about dental treatment. That's why we have invested in painless technology, a soothing environment, and a team that listens. We explain every procedure, discuss costs upfront, and never rush your treatment.
+                            </p>
+                            
+                            <div class="space-y-6">
+                                <div class="flex items-start">
+                                    <div class="bg-blue-50 p-3 rounded-lg mr-4 text-primary">
+                                        <i data-lucide="shield-check" class="w-6 h-6"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold text-lg text-textDark">Strict Hygiene Standards</h3>
+                                        <p class="text-textBody">We follow a 4-step sterilization protocol to ensure 100% infection control.</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="bg-blue-50 p-3 rounded-lg mr-4 text-primary">
+                                        <i data-lucide="heart" class="w-6 h-6"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold text-lg text-textDark">Painless Dentistry</h3>
+                                        <p class="text-textBody">Advanced anesthesia and gentle hands ensure comfort during every procedure.</p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start">
+                                    <div class="bg-blue-50 p-3 rounded-lg mr-4 text-primary">
+                                        <i data-lucide="user-check" class="w-6 h-6"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold text-lg text-textDark">Expert Specialists</h3>
+                                        <p class="text-textBody">Every treatment is performed by a specialized doctor, not a generalist.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Meet the Doctor Section -->
+                    <div class="bg-softBlue rounded-3xl p-8 md:p-16 mb-20">
+                        <div class="flex flex-col md:flex-row items-center gap-12">
+                            <div class="md:w-1/3">
+                                <img src="https://images.unsplash.com/photo-1622253692010-333f2da6031d?auto=format&fit=crop&q=80&w=400" alt="Dr. Sharma" class="rounded-2xl shadow-lg w-full object-cover aspect-[4/5]" />
+                            </div>
+                            <div class="md:w-2/3">
+                                <h2 class="text-3xl font-bold text-textDark mb-2">Dr. Sharma & Team</h2>
+                                <p class="text-primary font-medium mb-6">Chief Dentist & Orthodontist</p>
+                                <p class="text-textBody text-lg leading-relaxed mb-6">
+                                    With over a decade of clinical experience, Dr. Sharma leads our team with a passion for perfection. Specializing in Orthodontics and Cosmetic Dentistry, he has transformed thousands of smiles in Shalimar Bagh.
+                                </p>
+                                <p class="text-textBody text-lg leading-relaxed mb-8">
+                                    "My goal is simple: to give you a smile you are proud of, in the most comfortable way possible."
+                                </p>
+                                <button @click="navigateTo('contact')" class="inline-flex items-center justify-center font-medium transition-all duration-200 rounded-xl bg-primary text-white hover:bg-primaryHover shadow-[0_4px_12px_rgba(44,123,229,0.2)] text-base px-6 py-3">Book a Consultation</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- SERVICES PAGE -->
+        <div x-show="currentPage === 'services'" x-cloak x-transition.opacity.duration.300ms>
+             <div class="pt-8 pb-20">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 mb-16 text-center">
+                    <h1 class="text-4xl md:text-5xl font-bold text-textDark mb-6">Our Dental Services</h1>
+                    <p class="text-xl text-textBody max-w-2xl mx-auto">
+                        World-class treatments using the latest technology, tailored to your unique needs.
+                    </p>
+                </div>
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-20">
+                    <template x-for="(service, index) in services" :key="service.id">
+                        <div class="flex flex-col gap-12 items-start py-8 border-b border-gray-100 last:border-0" :class="index % 2 === 0 ? 'lg:flex-row' : 'lg:flex-row-reverse'">
+                             <!-- Image / Icon Visual -->
+                             <div class="w-full lg:w-5/12">
+                                <div class="bg-white rounded-3xl shadow-card overflow-hidden h-full min-h-[300px] border border-gray-100 flex flex-col">
+                                   <div class="h-48 bg-softBlue flex items-center justify-center text-primary">
+                                      <i :data-lucide="service.icon" class="w-20 h-20" stroke-width="1"></i>
+                                   </div>
+                                   <div class="p-8 bg-white flex-grow">
+                                       <h4 class="font-bold text-textDark mb-4 flex items-center">
+                                           <i data-lucide="help-circle" class="w-[18px] h-[18px] mr-2 text-primary"></i> FAQ
+                                       </h4>
+                                       <div class="space-y-4">
+                                          <template x-for="faq in service.faqs">
+                                            <div>
+                                              <p class="text-sm font-semibold text-textDark" x-text="faq.question"></p>
+                                              <p class="text-sm text-textBody" x-text="faq.answer"></p>
+                                            </div>
+                                          </template>
+                                       </div>
+                                   </div>
+                                </div>
+                             </div>
+
+                             <!-- Content -->
+                             <div class="w-full lg:w-7/12">
+                               <div class="flex items-center mb-4">
+                                   <div class="p-2 bg-blue-50 rounded-lg text-primary mr-3 lg:hidden">
+                                       <i :data-lucide="service.icon" class="w-6 h-6"></i>
+                                   </div>
+                                   <h2 class="text-3xl font-bold text-textDark" x-text="service.title"></h2>
+                               </div>
+                               <p class="text-lg text-textBody mb-8 leading-relaxed" x-text="service.fullDescription"></p>
+                               
+                               <h3 class="font-semibold text-lg text-textDark mb-4">Key Benefits</h3>
+                               <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
+                                 <template x-for="benefit in service.benefits">
+                                   <div class="flex items-center text-textBody">
+                                     <div class="w-6 h-6 rounded-full bg-green-100 text-accentGreen flex items-center justify-center mr-3 flex-shrink-0">
+                                       <i data-lucide="check" class="w-[14px] h-[14px]" stroke-width="3"></i>
+                                     </div>
+                                     <span x-text="benefit"></span>
+                                   </div>
+                                 </template>
+                               </div>
+
+                               <button @click="navigateTo('contact')" class="inline-flex items-center justify-center font-medium transition-all duration-200 rounded-xl bg-primary text-white hover:bg-primaryHover shadow-[0_4px_12px_rgba(44,123,229,0.2)] text-base px-6 py-3">
+                                   <span x-text="'Book ' + service.title"></span>
+                               </button>
+                             </div>
+                        </div>
+                    </template>
+                </div>
+
+                <div class="bg-primary py-16 mt-12">
+                    <div class="max-w-4xl mx-auto px-4 text-center text-white">
+                       <h2 class="text-3xl font-bold mb-6">Not sure what you need?</h2>
+                       <p class="text-lg text-blue-100 mb-8">Schedule a general consultation and let our experts guide you to the perfect smile.</p>
+                       <button @click="navigateTo('contact')" class="inline-flex items-center justify-center font-medium transition-all duration-200 rounded-xl bg-white text-primary hover:bg-softBlue border border-transparent shadow-card text-lg px-8 py-4">Book Consultation</button>
+                    </div>
+                 </div>
+             </div>
+        </div>
+
+        <!-- REVIEWS PAGE -->
+        <div x-show="currentPage === 'reviews'" x-cloak x-transition.opacity.duration.300ms>
+            <div class="pt-8 pb-20">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-16">
+                        <h1 class="text-4xl md:text-5xl font-bold text-textDark mb-6">Patient Stories</h1>
+                        <p class="text-xl text-textBody max-w-2xl mx-auto mb-8">
+                            Read genuine feedback from our patients in Shalimar Bagh.
+                        </p>
+                        <div class="inline-flex flex-col items-center bg-softBlue px-8 py-6 rounded-2xl">
+                            <h2 class="text-5xl font-bold text-textDark mb-2">4.8</h2>
+                            <div class="flex mb-2">
+                                <template x-for="i in 5">
+                                    <i data-lucide="star" class="w-6 h-6 text-yellow-400 fill-yellow-400"></i>
+                                </template>
+                            </div>
+                            <p class="text-sm font-medium text-textBody">Based on 120+ Google Reviews</p>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 mb-16">
+                        <template x-for="review in reviews" :key="review.id">
+                            <div class="bg-white p-6 rounded-2xl shadow-card h-full flex flex-col">
+                                <div class="flex items-center mb-4">
+                                    <template x-for="i in 5">
+                                        <i data-lucide="star" class="w-4 h-4 mr-1" :class="i <= review.rating ? 'text-yellow-400 fill-yellow-400' : 'text-gray-300'"></i>
+                                    </template>
+                                </div>
+                                <p class="text-textBody text-sm italic mb-6 flex-grow leading-relaxed" x-text="'&quot;' + review.text + '&quot;'"></p>
+                                <div class="flex items-center border-t border-borderGrey pt-4">
+                                    <div class="w-8 h-8 bg-gray-100 rounded-full flex items-center justify-center mr-3 text-gray-500">
+                                        <i data-lucide="user" class="w-4 h-4"></i>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-bold text-textDark text-sm" x-text="review.name"></h4>
+                                        <p class="text-xs text-gray-400" x-text="review.date"></p>
+                                    </div>
+                                    <div class="ml-auto">
+                                        <div class="w-6 h-6 rounded-full bg-white border border-gray-200 flex items-center justify-center shadow-sm">
+                                            <span class="font-bold text-[10px]" style="color: #4285F4">G</span>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                    <div class="text-center">
+                        <p class="text-textBody mb-6">Have you visited us recently? We'd love to hear your feedback.</p>
+                        <a href="https://google.com" target="_blank" rel="noreferrer">
+                            <button class="inline-flex items-center justify-center font-medium transition-all duration-200 rounded-xl bg-transparent border border-primary text-primary hover:bg-softBlue text-base px-6 py-3">Write a Google Review</button>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- GALLERY PAGE -->
+        <div x-show="currentPage === 'gallery'" x-cloak x-transition.opacity.duration.300ms>
+            <div class="pt-8 pb-20">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-16">
+                        <h1 class="text-4xl md:text-5xl font-bold text-textDark mb-6">Clinic Gallery</h1>
+                        <p class="text-xl text-textBody max-w-2xl mx-auto">
+                            A glimpse into our modern, hygienic, and comfortable dental centre.
+                        </p>
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <template x-for="img in galleryImages">
+                            <div class="group relative rounded-2xl overflow-hidden shadow-card cursor-pointer">
+                                <img :src="img.src" :alt="img.title" class="w-full h-72 object-cover transform group-hover:scale-110 transition-transform duration-500" />
+                                <div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-6">
+                                    <p class="text-white font-semibold text-lg" x-text="img.title"></p>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CONTACT PAGE -->
+        <div x-show="currentPage === 'contact'" x-cloak x-transition.opacity.duration.300ms>
+            <div class="pt-8 pb-20 bg-softBlue/30">
+                <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+                    <div class="text-center mb-16">
+                        <h1 class="text-4xl md:text-5xl font-bold text-textDark mb-6">Contact Us</h1>
+                        <p class="text-xl text-textBody max-w-2xl mx-auto">
+                            We are here to help. Book your appointment or visit us today.
+                        </p>
+                    </div>
+                    
+                    <div class="max-w-4xl mx-auto space-y-8">
+                        <!-- Info Cards -->
+                        <div class="bg-white p-8 rounded-2xl shadow-card grid md:grid-cols-3 gap-8">
+                            <div class="flex items-start">
+                                <div class="bg-blue-50 p-3 rounded-xl text-primary mr-4 shrink-0">
+                                    <i data-lucide="map-pin" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-textDark mb-2">Location</h3>
+                                    <p class="text-textBody text-sm" x-text="clinicInfo.address"></p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-blue-50 p-3 rounded-xl text-primary mr-4 shrink-0">
+                                    <i data-lucide="phone" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-textDark mb-2">Phone</h3>
+                                    <a :href="'tel:' + clinicInfo.phone" class="text-textBody text-sm hover:text-primary transition-colors" x-text="clinicInfo.phone"></a>
+                                    <p class="text-xs text-gray-400 mt-1">10 AM - 8 PM</p>
+                                </div>
+                            </div>
+                            <div class="flex items-start">
+                                <div class="bg-blue-50 p-3 rounded-xl text-primary mr-4 shrink-0">
+                                    <i data-lucide="clock" class="w-6 h-6"></i>
+                                </div>
+                                <div>
+                                    <h3 class="text-lg font-bold text-textDark mb-2">Hours</h3>
+                                    <p class="text-textBody text-sm">Mon-Sat: 10-8</p>
+                                    <p class="text-textBody text-sm">Sun: 10-2</p>
+                                </div>
+                            </div>
+                        </div>
+
+                         <!-- Map -->
+                        <div class="bg-white p-2 rounded-2xl shadow-card h-[500px] overflow-hidden">
+                            <iframe 
+                            src="https://maps.google.com/maps?q=P585%2BP2%20Delhi&t=&z=15&ie=UTF8&iwloc=&output=embed"
+                            width="100%" 
+                            height="100%" 
+                            style="border: 0; border-radius: 1rem;" 
+                            allowfullscreen="" 
+                            loading="lazy" 
+                            title="Clinic Location"
+                            ></iframe>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-textDark text-white pt-16 pb-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
+                <!-- Brand Info -->
+                <div>
+                    <div class="flex items-center mb-6">
+                        <div class="w-10 h-10 bg-primary rounded-lg flex items-center justify-center mr-3">
+                            <span class="text-white font-bold text-xl">SV</span>
+                        </div>
+                        <h3 class="text-xl font-bold">Sai Vinayak</h3>
+                    </div>
+                    <p class="text-gray-400 mb-6 text-sm leading-relaxed">
+                        Providing painless and advanced dental care in Shalimar Bagh. Your smile is our priority.
+                    </p>
+                    <div class="flex space-x-4">
+                        <a href="#" class="text-gray-400 hover:text-primary transition-colors"><i data-lucide="facebook" class="w-5 h-5"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-primary transition-colors"><i data-lucide="instagram" class="w-5 h-5"></i></a>
+                        <a href="#" class="text-gray-400 hover:text-primary transition-colors"><i data-lucide="twitter" class="w-5 h-5"></i></a>
+                    </div>
+                </div>
+                <!-- Quick Links -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-6">Quick Links</h4>
+                    <ul class="space-y-3">
+                        <template x-for="item in navItems" :key="item.id">
+                            <li><a href="#" @click.prevent="navigateTo(item.id)" class="text-gray-400 hover:text-white text-sm transition-colors" x-text="item.label"></a></li>
+                        </template>
+                    </ul>
+                </div>
+                <!-- Contact Info -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-6">Contact Us</h4>
+                    <ul class="space-y-4">
+                        <li class="flex items-start">
+                            <i data-lucide="map-pin" class="text-primary mt-1 mr-3 flex-shrink-0 w-[18px] h-[18px]"></i>
+                            <span class="text-gray-400 text-sm" x-text="clinicInfo.address"></span>
+                        </li>
+                        <li class="flex items-center">
+                            <i data-lucide="phone" class="text-primary mr-3 flex-shrink-0 w-[18px] h-[18px]"></i>
+                            <a :href="'tel:' + clinicInfo.phone" class="text-gray-400 text-sm hover:text-white" x-text="clinicInfo.phone"></a>
+                        </li>
+                    </ul>
+                </div>
+                <!-- Hours -->
+                <div>
+                    <h4 class="text-lg font-semibold mb-6">Opening Hours</h4>
+                    <ul class="space-y-3">
+                        <li class="flex items-start text-sm text-gray-400">
+                            <i data-lucide="clock" class="text-primary mt-0.5 mr-3 flex-shrink-0 w-[18px] h-[18px]"></i>
+                            <div>
+                                <p class="text-white">Mon - Sat</p>
+                                <p>10:00 AM - 8:00 PM</p>
+                            </div>
+                        </li>
+                        <li class="flex items-start text-sm text-gray-400">
+                            <i data-lucide="clock" class="text-primary mt-0.5 mr-3 flex-shrink-0 w-[18px] h-[18px]"></i>
+                            <div>
+                                <p class="text-white">Sunday</p>
+                                <p>10:00 AM - 2:00 PM</p>
+                            </div>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-800 mt-12 pt-8 text-center text-sm text-gray-500">
+                <p>&copy; <span x-text="new Date().getFullYear()"></span> Sai Vinayak Dental & Orthodontic Centre. All rights reserved.</p>
+                <p class="mt-2 text-xs">Designed for Patient Comfort</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Floating CTA -->
+    <div class="fixed bottom-4 right-4 z-40 flex flex-col space-y-3 md:hidden">
+        <a href="https://wa.me/919876543210" target="_blank" rel="noreferrer" class="w-14 h-14 bg-[#25D366] rounded-full shadow-lg flex items-center justify-center text-white hover:scale-105 transition-transform" aria-label="Chat on WhatsApp">
+            <i data-lucide="message-circle" class="w-7 h-7 text-white fill-white"></i>
+        </a>
+        <a :href="'tel:' + clinicInfo.phone" class="w-14 h-14 bg-primary rounded-full shadow-lg flex items-center justify-center text-white hover:scale-105 transition-transform animate-bounce-subtle" aria-label="Call Now">
+            <i data-lucide="phone" class="w-6 h-6"></i>
+        </a>
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+        function dentalApp() {
+            return {
+                currentPage: 'home',
+                mobileMenuOpen: false,
+                clinicInfo: {
+                    name: "Sai Vinayak Dental & Orthodontic Centre",
+                    phone: "+91 98765 43210",
+                    address: "Opp. Police Station, Shalimar Bagh, Delhi",
+                    mapLink: "https://goo.gl/maps/placeholder",
+                    rating: 4.8,
+                    reviewCount: 120,
+                },
+                navItems: [
+                    { label: 'Home', id: 'home' },
+                    { label: 'About Us', id: 'about' },
+                    { label: 'Services', id: 'services' },
+                    { label: 'Reviews', id: 'reviews' },
+                    { label: 'Gallery', id: 'gallery' },
+                    { label: 'Contact', id: 'contact' },
+                ],
+                whyChooseUs: [
+                    { title: 'Painless Treatment', icon: 'sparkles', desc: 'Advanced anesthesia techniques for comfort.' },
+                    { title: 'Modern Equipment', icon: 'drill', desc: 'Latest technology including Rotary Endo.' },
+                    { title: 'Hygienic Environment', icon: 'shield-check', desc: 'Strict sterilization protocols followed.' },
+                    { title: 'Experienced Team', icon: 'stethoscope', desc: 'Specialist doctors for every treatment.' },
+                    { title: 'Full-Time Orthodontist', icon: 'smile', desc: 'Expert braces treatment available daily.' },
+                    { title: 'In-House OPG', icon: 'scan', desc: 'Immediate full mouth X-rays on site.' },
+                ],
+                services: [
+                    {
+                        id: 'rct',
+                        title: 'Root Canal Treatment',
+                        shortDescription: 'Painless, single-sitting root canal therapy using rotary instruments.',
+                        fullDescription: 'Save your natural tooth with our advanced, painless Root Canal Treatment (RCT). We use modern rotary endodontics and effective anesthesia to ensure a comfortable experience. Most treatments are completed in a single sitting.',
+                        icon: 'drill',
+                        benefits: ['Painless procedure', 'Single sitting available', 'Microscopic precision', 'Save natural tooth'],
+                        faqs: [
+                            { question: "Is RCT painful?", answer: "No, with modern anesthesia, the procedure is virtually painless." },
+                            { question: "How long does it take?", answer: "Usually 45-60 minutes per sitting. Many cases are done in one visit." }
+                        ]
+                    },
+                    {
+                        id: 'braces',
+                        title: 'Braces & Orthodontics',
+                        shortDescription: 'Metal, ceramic, and invisible braces by full-time specialist.',
+                        fullDescription: 'Correct misaligned teeth and jaw problems with our expert orthodontic care. We offer traditional metal braces, aesthetic ceramic braces, and modern clear aligners. Treatment is led by our full-time Orthodontist.',
+                        icon: 'smile',
+                        benefits: ['Full-time Orthodontist', 'Invisible aligners available', 'Flexible payment plans', 'For kids & adults'],
+                        faqs: [
+                            { question: "What is the best age for braces?", answer: "Ideally between 10-14 years, but adult orthodontics is also very effective." },
+                            { question: "Are invisible aligners available?", answer: "Yes, we offer clear aligners for a discreet treatment." }
+                        ]
+                    },
+                    {
+                        id: 'implants',
+                        title: 'Dental Implants',
+                        shortDescription: 'Permanent, natural-looking solution for missing teeth.',
+                        fullDescription: 'Regain your smile and chewing ability with high-quality dental implants. Implants are titanium posts that act as artificial tooth roots, providing a strong foundation for fixed replacement teeth.',
+                        icon: 'stethoscope',
+                        benefits: ['Lifetime warranty options', 'Natural look & feel', 'Prevents bone loss', 'Minimally invasive'],
+                        faqs: [
+                            { question: "Is the surgery painful?", answer: "It is done under local anesthesia and is generally well-tolerated with minimal discomfort." },
+                            { question: "How long do implants last?", answer: "With proper care, they can last a lifetime." }
+                        ]
+                    },
+                    {
+                        id: 'smile',
+                        title: 'Smile Makeover',
+                        shortDescription: 'Veneers, whitening, and aesthetic corrections.',
+                        fullDescription: 'Transform your smile with our cosmetic dentistry services. From teeth whitening to porcelain veneers and bonding, we design the perfect smile that suits your face.',
+                        icon: 'sparkles',
+                        benefits: ['Digital smile design', 'Stain-resistant veneers', 'Instant whitening', 'Boosts confidence'],
+                        faqs: [
+                            { question: "How long does whitening last?", answer: "It can last from 6 months to 2 years depending on dietary habits." }
+                        ]
+                    },
+                    {
+                        id: 'opg',
+                        title: 'Full Mouth X-Ray (OPG)',
+                        shortDescription: 'In-house digital OPG for instant comprehensive diagnosis.',
+                        fullDescription: 'Our clinic is equipped with an in-house OPG machine, allowing for immediate full-mouth X-rays. This ensures faster, more accurate diagnosis without the need for you to visit a diagnostic center.',
+                        icon: 'scan',
+                        benefits: ['Instant results', 'Low radiation', 'Full mouth view', 'Convenient'],
+                        faqs: [
+                            { question: "Is it safe?", answer: "Yes, digital OPGs use very low radiation compared to traditional X-rays." }
+                        ]
+                    },
+                    {
+                        id: 'kids',
+                        title: 'Pediatric Dentistry',
+                        shortDescription: 'Gentle dental care for children and teenagers.',
+                        fullDescription: 'We specialize in making dental visits fun and fear-free for children. From preventive fluoride treatments to habit breaking appliances, we care for your child’s oral health.',
+                        icon: 'baby',
+                        benefits: ['Child-friendly environment', 'Pain-free techniques', 'Preventive care focus', 'Habit breaking'],
+                        faqs: [
+                            { question: "When should my child first see a dentist?", answer: "By their first birthday or when the first tooth appears." }
+                        ]
+                    }
+                ],
+                reviews: [
+                    { id: '1', name: 'Sanjeev Kumar', rating: 5, text: 'Best dental clinic in Shalimar Bagh. Dr. Sharma explains everything very patiently. The root canal was completely painless. Highly recommended!', date: '2 months ago' },
+                    { id: '2', name: 'Astha Singh', rating: 5, text: 'Got braces for my daughter here. The orthodontist is very experienced and available full time. Great results in just 1 year.', date: '1 month ago' },
+                    { id: '3', name: 'Rakesh Gupta', rating: 5, text: 'Very hygienic and modern clinic. The OPG machine is right there, so I didn’t have to go anywhere else for X-rays. Professional staff.', date: '3 weeks ago' },
+                    { id: '4', name: 'Priya Malhotra', rating: 5, text: 'Very gentle with kids. My son was terrified of dentists but Dr. Sharma made him feel so comfortable.', date: '3 months ago' },
+                    { id: '5', name: 'Vikram Singh', rating: 4, text: 'Clean clinic and good staff. Wait time was a bit long on Saturday but treatment was excellent.', date: '4 months ago' },
+                    { id: '6', name: 'Neha Kapoor', rating: 5, text: 'I got my smile makeover done here with veneers. The results are stunning! Highly recommend for cosmetic work.', date: '5 months ago' },
+                ],
+                galleryImages: [
+                    { src: 'https://images.unsplash.com/photo-1519494026892-80bbd2d6fd0d?auto=format&fit=crop&q=80&w=800', title: 'Reception Area' },
+                    { src: 'https://images.unsplash.com/photo-1606811971618-4486d14f3f72?auto=format&fit=crop&q=80&w=800', title: 'Treatment Room 1' },
+                    { src: 'https://images.unsplash.com/photo-1588776814546-1ffcf47267a5?auto=format&fit=crop&q=80&w=800', title: 'Modern Equipment' },
+                    { src: 'https://images.unsplash.com/photo-1598256989800-fe5f95da9787?auto=format&fit=crop&q=80&w=800', title: 'Dental Chair' },
+                    { src: 'https://images.unsplash.com/photo-1581594693702-fbdc51b2763b?auto=format&fit=crop&q=80&w=800', title: 'Sterilization Unit' },
+                    { src: 'https://images.unsplash.com/photo-1516455590571-18256e5bb9ff?auto=format&fit=crop&q=80&w=800', title: 'Waiting Lounge' },
+                ],
+                initApp() {
+                    this.$watch('currentPage', () => {
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                        // Re-initialize icons after DOM update
+                        this.$nextTick(() => {
+                            lucide.createIcons();
+                        });
+                    });
+                    // Initial render of icons
+                    this.$nextTick(() => {
+                        lucide.createIcons();
+                    });
+                },
+                navigateTo(page) {
+                    this.currentPage = page;
+                }
+            }
+        }
+    </script>
+</body>
+</html>
